@@ -28,47 +28,63 @@ using namespace std;
 
 class LinearSystem
 {
-    private:
-	    unsigned int dimension;
+    public:
+	    int dimension;
         Matrix2D A;
         Matrix1D F;
         Matrix1D X;
-
-    public:
 	    double time_simp;
 	    double time_omp;
 
-	LinearSystem(unsigned int N) {
-		srand((unsigned int) time(0));
-		dimension = N;
+        void load_data();
+        void solve_casual();
+        void solve_omp();
+        void init_data();
+        void display_1d(Matrix1D);
+        void display_2d(Matrix2D);
+
+	LinearSystem(int N) {
+        srand(time(0));
+        dimension = N;
+
+        Matrix2D A1(dimension);
+        A = A1;
+        Matrix1D F1(dimension);
+        F = F1;
+        Matrix1D X1(dimension);
+        X = X1;
+
 
         A.resize(N);
+        for (size_t i = 0; i<N; i++) {
+            A[i].resize(N);
+//            cout << "Init of " << i << " row in A" << endl;
+        }
         F.resize(N);
+//        cout << "resized F" << endl;
         X.resize(N);
+//        cout << "resized X" << endl;
 
         time_omp = 0;
 		time_simp = 0;
 
-        this->load_data();
+        cout << "Constructor is ok!" << endl;
 	}
 
 //	~LinearSystem(void)
 
-	void load_data();
-	void solve_casual();
-	void solve_omp();
-	void init_data();
-	void display_1d(Matrix1D&);
-	void display_2d(Matrix2D&);
+
 };
 
 
 void LinearSystem::load_data()
 {
-	for (size_t i = 0; i < dimension; i++) {
-        Matrix1D row(dimension);
-		A.push_back(row);
-		for (size_t j = 0; j < dimension; j++) {
+    cout << "Alive";
+	for (int i = 0; i < dimension; i++) {
+//        cout << "Alive entry Load_Data" << i << endl;
+
+		for (int j = 0; j < dimension; j++) {
+//            cout << "I alive" << j << endl;
 			if (i == j)
 				A[i][j] = 100 * dimension + rand() % 300 * dimension;
 			else
@@ -81,7 +97,7 @@ void LinearSystem::load_data()
 }
 
 
-void LinearSystem::display_1d(Matrix1D& arg)
+void LinearSystem::display_1d(Matrix1D arg)
 {
 	for (size_t i = 0; i < dimension; i++)
 		cout << arg[i] << endl;
@@ -89,7 +105,7 @@ void LinearSystem::display_1d(Matrix1D& arg)
 }
 
 
-void LinearSystem::display_2d(Matrix2D& arg)
+void LinearSystem::display_2d(Matrix2D arg)
 {
 	for (size_t i = 0; i < dimension; i++) {
 		for (int g = 0; g < dimension; g++)
@@ -104,7 +120,7 @@ void LinearSystem::display_2d(Matrix2D& arg)
 /// X[N] - начальное приближение, также ответ записывается в X[N];
 void LinearSystem::solve_casual()
 {
-	unsigned int N = dimension;
+	int N = dimension;
     int g;
 	double time1, time2;
 
@@ -116,7 +132,7 @@ void LinearSystem::solve_casual()
 	time1 = omp_get_wtime();
 
     do {
-		for (size_t i = 0; i < N; i++) {
+		for (int i = 0; i < N; i++) {
 			TempX[i] = F[i];
 			for (g = 0; g < N; g++) {
 				if (i != g)
@@ -141,7 +157,7 @@ void LinearSystem::solve_casual()
 
 void LinearSystem::solve_omp()
 {
-	unsigned int N = dimension;
+	int N = dimension;
     int g;
 	double t1, t2;
 
@@ -153,7 +169,7 @@ void LinearSystem::solve_omp()
 	do
     {
     #pragma omp parallel for private(g) shared(TempX)
-		for (size_t i = 0; i < N; i++)
+		for (int i = 0; i < N; i++)
         {
 			TempX[i] = F[i];
 			for (g = 0; g < N; g++)
@@ -189,13 +205,25 @@ int main(int argc, char* argv[])
 {
 	int num; // = atoi(argv[2]);
 	cin >> num;
-	unsigned int dimension; //= atoi(argv[1]);
+	int dimension; //= atoi(argv[1]);
 	cin >> dimension;
-	omp_set_num_threads(num);
-	LinearSystem* ls = new LinearSystem(dimension);
+ 	omp_set_num_threads(num);
+    cout << "I started\n";
+	LinearSystem *ls = new LinearSystem(dimension);
+
+    ls->load_data();
+
+
     ls->solve_omp();
+
     ls->init_data();
     ls->solve_casual();
-	cout << "OpenMP time: " << ls->time_omp << endl << "Casual time: " << ls->time_simp;
-	return 0;
+
+
+
+    cout << "Casual time: " << ls->time_simp << endl;
+    cout << "OpenMP time: " << ls->time_omp << endl;
+
+
+    return 0;
 }
