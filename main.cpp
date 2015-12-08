@@ -47,15 +47,11 @@ class LinearSystem
         srand(time(0));
         dimension = N;
 
-        Matrix2D A1(dimension);
-        A = A1;
-        Matrix1D F1(dimension);
-        F = F1;
-        Matrix1D X1(dimension);
-        X = X1;
+        A.resize(dimension);
+        F.resize(dimension);
+        X.resize(dimension);
 
 
-        A.resize(N);
         for (size_t i = 0; i<N; i++) {
             A[i].resize(N);
 //            cout << "Init of " << i << " row in A" << endl;
@@ -79,7 +75,7 @@ class LinearSystem
 
 void LinearSystem::load_data()
 {
-    cout << "Alive";
+    cout << "Alive load data" << endl;
 	for (int i = 0; i < dimension; i++) {
 //        cout << "Alive entry Load_Data" << i << endl;
 
