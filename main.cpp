@@ -54,12 +54,7 @@ class LinearSystem
 
         for (size_t i = 0; i<N; i++) {
             A[i].resize(N);
-//            cout << "Init of " << i << " row in A" << endl;
         }
-        F.resize(N);
-//        cout << "resized F" << endl;
-        X.resize(N);
-//        cout << "resized X" << endl;
 
         time_omp = 0;
 		time_simp = 0;
@@ -76,18 +71,16 @@ class LinearSystem
 void LinearSystem::load_data()
 {
     cout << "Alive load data" << endl;
-	for (int i = 0; i < dimension; i++) {
-//        cout << "Alive entry Load_Data" << i << endl;
-
-		for (int j = 0; j < dimension; j++) {
-//            cout << "I alive" << j << endl;
+	for (int i = 0; i < dimension; i++)
+    {
+		for (int j = 0; j < dimension; j++)
+        {
 			if (i == j)
 				A[i][j] = 100 * dimension + rand() % 300 * dimension;
 			else
 				A[i][j] = 1 + rand() % 100;
 		}
 		F[i] = 1 + rand() % 10;
-		//cin >> F[i];
 		X[i] = 1;
 	}
 }
@@ -122,15 +115,17 @@ void LinearSystem::solve_casual()
 
     Matrix1D TempX(N);
 
-// Норма, определяемая как наибольшая разность столбца иксов соседней итерации
+//  Норма, определяемая как наибольшая разность столбца иксов соседней итерации
 	double norm;
 
 	time1 = omp_get_wtime();
 
     do {
-		for (int i = 0; i < N; i++) {
+		for (int i = 0; i < N; i++)
+        {
 			TempX[i] = F[i];
-			for (g = 0; g < N; g++) {
+			for (g = 0; g < N; g++)
+            {
 				if (i != g)
 					TempX[i] -= A[i][g] * X[g];
 			}
@@ -155,6 +150,7 @@ void LinearSystem::solve_omp()
 {
 	int N = dimension;
     int g;
+    int i;
 	double t1, t2;
 
     Matrix1D TempX(N);
@@ -164,8 +160,8 @@ void LinearSystem::solve_omp()
 
 	do
     {
-    #pragma omp parallel for private(g) shared(TempX)
-		for (int i = 0; i < N; i++)
+    #pragma omp parallel for private(i,g,norm) shared(TempX)
+		for (i = 0; i < N; i++)
         {
 			TempX[i] = F[i];
 			for (g = 0; g < N; g++)
